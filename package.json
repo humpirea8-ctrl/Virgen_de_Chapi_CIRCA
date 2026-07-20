@@ -9,7 +9,11 @@
     "lint": "next lint",
     "prisma:migrate": "prisma migrate dev --name init",
     "prisma:seed": "ts-node --transpile-only prisma/seed.ts",
-    "docker:up": "docker-compose up --build"
+    "docker:up": "docker-compose up --build",
+    "postinstall": "prisma generate"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
     "next": "13.4.10",
