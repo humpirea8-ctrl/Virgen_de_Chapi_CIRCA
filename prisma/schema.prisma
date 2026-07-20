@@ -25,6 +25,10 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
+  // Relations for academic models
+  submissions   Submission[]
+  attendances   Attendance[]
+  lessonProgress LessonProgress[]
 }
 
 model Profile {
@@ -107,4 +111,70 @@ model AuditLog {
   action    String
   meta      String?
   createdAt DateTime @default(now())
+}
+
+// Aula virtual models
+model AulaVirtual {
+  id          Int       @id @default(autoincrement())
+  title       String
+  grade       String?
+  section     String?
+  teacherId   Int?
+  teacher     User?     @relation(fields: [teacherId], references: [id])
+  color       String?   
+  imageUrl    String?
+  description String?
+  units       Unidad[]
+  createdAt   DateTime  @default(now())
+}
+
+model Unidad {
+  id        Int      @id @default(autoincrement())
+  aulaId    Int
+  aula      AulaVirtual @relation(fields: [aulaId], references: [id])
+  title     String
+  orden     Int
+  description String?
+  lessons   Leccion[]
+  createdAt DateTime @default(now())
+
+  @@unique([aulaId, orden])
+}
+
+model Leccion {
+  id          Int      @id @default(autoincrement())
+  unidadId    Int
+  unidad      Unidad   @relation(fields: [unidadId], references: [id])
+  title       String
+  orden       Int
+  content     String?
+  blocked     Boolean  @default(false)
+  resources   Recurso[]
+  createdAt   DateTime @default(now())
+
+  @@unique([unidadId, orden])
+}
+
+model Recurso {
+  id        Int     @id @default(autoincrement())
+  leccionId Int
+  leccion   Leccion @relation(fields: [leccionId], references: [id])
+  type      String
+  url       String
+  meta      String?
+  visibility String @default("PRIVATE")
+  createdAt DateTime @default(now())
+}
+
+model LessonProgress {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+  leccionId Int
+  leccion   Leccion @relation(fields: [leccionId], references: [id])
+  completed Boolean @default(false)
+  completedAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@unique([userId, leccionId])
 }
