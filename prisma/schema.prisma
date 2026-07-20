@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  users     User[]
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  passwordHash  String?
+  name          String?
+  roleId        Int
+  role          Role      @relation(fields: [roleId], references: [id])
+  profile       Profile?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+}
+
+model Profile {
+  id        Int     @id @default(autoincrement())
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int     @unique
+  phone     String?
+  photoUrl  String?
+  dni       String?
+}
+
+model InvitationCode {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  roleId    Int
+  role      Role     @relation(fields: [roleId], references: [id])
+  singleUse Boolean  @default(true)
+  usedBy    User[]   @relation("UsedCodes")
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+}
+
+model AcademicYear {
+  id        Int     @id @default(autoincrement())
+  year      Int
+  active    Boolean @default(false)
+}
+
+model Course {
+  id        Int     @id @default(autoincrement())
+  name      String
+  grade     String?
+  teacherId Int?
+  createdAt DateTime @default(now())
+}
+
+model Task {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String?
+  courseId     Int
+  publishedAt  DateTime?
+  dueAt        DateTime?
+  createdAt    DateTime @default(now())
+}
+
+model Submission {
+  id         Int      @id @default(autoincrement())
+  taskId     Int
+  studentId  Int
+  text       String?
+  files      String?
+  status     String   @default("PENDIENTE")
+  grade      Float?
+  feedback   String?
+  createdAt  DateTime @default(now())
+}
+
+model Attendance {
+  id         Int     @id @default(autoincrement())
+  studentId  Int
+  courseId   Int
+  date       DateTime
+  status     String
+  note       String?
+  createdAt  DateTime @default(now())
+}
+
+model Communication {
+  id        Int      @id @default(autoincrement())
+  title     String
+  body      String
+  audience  String
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  action    String
+  meta      String?
+  createdAt DateTime @default(now())
+}
